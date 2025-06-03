@@ -20,7 +20,7 @@ export function MaintenanceControl({
   ]
 }: MaintenanceControlProps) {
   return (
-    <Card className="lg:col-span-1">
+    <Card className="xl:col-span-3">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Wrench className="h-5 w-5 text-orange-600" />
@@ -29,19 +29,15 @@ export function MaintenanceControl({
         <CardDescription>Histórico de manutenções realizadas</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
+        <div className="space-y-3 xl:space-y-0 xl:grid xl:grid-cols-3 xl:gap-4">
           {maintenanceRecords.map((maintenance, index) => (
-            <div key={index} className="p-3 border rounded-lg">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <p className="font-medium">{maintenance.tipo}</p>
-                </div>
+            <div key={index} className="p-4 border rounded-lg">
+              <div className="flex items-start justify-between mb-2">
+                <h4 className="font-medium text-sm">{maintenance.tipo}</h4>
                 <Badge variant="outline">{maintenance.valor}</Badge>
               </div>
-              <div className="flex justify-between items-center">
-                <p className="text-xs text-gray-600">Data: {maintenance.data}</p>
-                <span className="text-xs text-gray-700">Responsável: {maintenance.responsavel}</span>
-              </div>
+              <p className="text-xs text-gray-600 mb-1">Data: {maintenance.data}</p>
+              <p className="text-xs text-gray-700">Responsável: {maintenance.responsavel}</p>
             </div>
           ))}
         </div>
