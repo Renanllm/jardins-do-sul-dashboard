@@ -72,42 +72,69 @@ export default function DashboardPage() {
     }
   }
 
-  // Dados mockados
-  const proximaFaxina = {
-    nome: "Maria Silva",
-    apartamento: "201",
-    avatar: "/placeholder.svg?height=40&width=40",
-    dataVencimento: "15/01/2024",
+  // --- Cleaning Payment Rotation Logic ---
+  // Rotation order
+  const cleaningRotation = [
+    { nome: "Célia", apartamento: "101", avatar: "/placeholder.svg?height=40&width=40" },
+    { nome: "Kalina", apartamento: "201", avatar: "/placeholder.svg?height=40&width=40" },
+    { nome: "Rateio", apartamento: "001", avatar: "/placeholder.svg?height=40&width=40" },
+    { nome: "Ézio", apartamento: "202", avatar: "/placeholder.svg?height=40&width=40" },
+    { nome: "Renan", apartamento: "102", avatar: "/placeholder.svg?height=40&width=40" },
+  ];
+
+  // History based on your data
+  const historicoFaxina = [
+    { nome: "Rateio", data: "31/05/2025", status: "pago", comprovante: true },
+    { nome: "Kalina", data: "24/05/2025", status: "pago", comprovante: true },
+    { nome: "Renan", data: "17/05/2025", status: "pago", comprovante: true },
+    { nome: "Célia", data: "10/05/2025", status: "pago", comprovante: true },
+    { nome: "Ézio", data: "03/05/2025", status: "pago", comprovante: true },
+  ];
+
+  // Helper to get next Saturday after a given date
+  function getNextSaturday(date: Date): Date {
+    const day = date.getDay();
+    const diff = (6 - day + 7) % 7 || 7; // 6 = Saturday
+    const nextSaturday = new Date(date);
+    nextSaturday.setDate(date.getDate() + diff);
+    return nextSaturday;
   }
 
-  const historicoFaxina = [
-    { nome: "João Santos", apartamento: "101", data: "01/01/2024", status: "pago", comprovante: true },
-    { nome: "Ana Costa", apartamento: "302", data: "15/12/2023", status: "pago", comprovante: true },
-    { nome: "Carlos Lima", apartamento: "203", data: "01/12/2023", status: "pago", comprovante: false },
-    { nome: "Lucia Ferreira", apartamento: "401", data: "15/11/2023", status: "pago", comprovante: true },
-    { nome: "Pedro Oliveira", apartamento: "102", data: "01/11/2023", status: "pago", comprovante: true },
-    { nome: "Rosa Santos", apartamento: "301", data: "15/10/2023", status: "pago", comprovante: true },
-  ]
+  // Find last payment info
+  const lastPayment = historicoFaxina[0];
+  const lastPaymentDateParts = lastPayment.data.split("/"); // dd/mm/yyyy
+  const lastPaymentDate = new Date(
+    2025,
+    Number(lastPaymentDateParts[1]) - 1,
+    Number(lastPaymentDateParts[0])
+  );
+  // Find who is next in the rotation
+  const lastIndex = cleaningRotation.findIndex(p => p.nome === lastPayment.nome);
+  const nextIndex = (lastIndex + 1) % cleaningRotation.length;
+  const proximaFaxina = {
+    ...cleaningRotation[nextIndex],
+    dataVencimento: getNextSaturday(lastPaymentDate).toLocaleDateString("pt-BR"),
+  };
 
   const parcelasCobertura = [
-    { parcela: 1, valor: "R$ 2.500,00", vencimento: "15/01/2024", pagos: 8, total: 12 },
-    { parcela: 2, valor: "R$ 2.500,00", vencimento: "15/02/2024", pagos: 6, total: 12 },
-    { parcela: 3, valor: "R$ 2.500,00", vencimento: "15/03/2024", pagos: 4, total: 12 },
-    { parcela: 4, valor: "R$ 2.500,00", vencimento: "15/04/2024", pagos: 2, total: 12 },
+    { parcela: 1, valor: "R$ 2.500,00", vencimento: "15/01/2025", pagos: 8, total: 12 },
+    { parcela: 2, valor: "R$ 2.500,00", vencimento: "15/02/2025", pagos: 6, total: 12 },
+    { parcela: 3, valor: "R$ 2.500,00", vencimento: "15/03/2025", pagos: 4, total: 12 },
+    { parcela: 4, valor: "R$ 2.500,00", vencimento: "15/04/2025", pagos: 2, total: 12 },
   ]
 
   const proximaLimpeza = {
     nome: "Carlos Lima",
     apartamento: "203",
     avatar: "/placeholder.svg?height=40&width=40",
-    dataCompra: "20/01/2024",
+    dataCompra: "20/01/2025",
   }
 
   const historicoLimpeza = [
     {
       nome: "Ana Costa",
       apartamento: "302",
-      data: "05/01/2024",
+      data: "05/01/2025",
       itens: "Detergente, Desinfetante, Papel",
       status: "comprado",
     },
@@ -321,14 +348,14 @@ export default function DashboardPage() {
                     <div>
                       <p className="font-medium">{proximaFaxina.nome}</p>
                       <p className="text-sm text-gray-600">Apt. {proximaFaxina.apartamento}</p>
-                      <p className="text-sm text-blue-600">Venc: {proximaFaxina.dataVencimento}</p>
+                      <p className="text-sm text-blue-600">Próxima faxina: {proximaFaxina.dataVencimento}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Histórico */}
                 <div>
-                  <h4 className="font-medium mb-3">Últimas 6 Responsabilidades</h4>
+                  <h4 className="font-medium mb-3">Últimos Pagamentos</h4>
                   <ScrollArea className="h-48">
                     <div className="space-y-2">
                       {historicoFaxina.map((item, index) => (
