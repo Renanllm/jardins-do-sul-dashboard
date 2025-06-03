@@ -1,7 +1,7 @@
 // TODO: Replace mock data with real data sources in the future.
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -23,9 +23,36 @@ import {
   Wrench,
   AlertTriangle,
 } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 export default function DashboardPage() {
   const [activeSection, setActiveSection] = useState("dashboard")
+  const [userName, setUserName] = useState<string | null>(null)
+  const [nameInput, setNameInput] = useState("")
+  const [showModal, setShowModal] = useState(false)
+
+  // Check localStorage for user name on mount
+  useEffect(() => {
+    const stored = typeof window !== "undefined" ? localStorage.getItem("dashboard_user_name") : null
+    if (stored) {
+      setUserName(stored)
+      setShowModal(false)
+    } else {
+      setShowModal(true)
+    }
+  }, [])
+
+  // Save name to localStorage and state
+  const handleSaveName = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (nameInput.trim()) {
+      localStorage.setItem("dashboard_user_name", nameInput.trim())
+      setUserName(nameInput.trim())
+      setShowModal(false)
+    }
+  }
 
   // Dados mockados
   const proximaFaxina = {
@@ -113,348 +140,374 @@ export default function DashboardPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-4 py-3">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <div className="flex items-center space-x-3">
-            <div className="bg-blue-600 p-2 rounded-lg">
-              <Home className="h-6 w-6 text-white" />
+    <>
+      <Dialog open={showModal} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Identifique-se</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSaveName} className="space-y-4">
+            <div className="grid gap-2">
+              <Label htmlFor="user-name">Qual seu nome?</Label>
+              <Input
+                id="user-name"
+                value={nameInput}
+                onChange={e => setNameInput(e.target.value)}
+                placeholder="Digite seu nome"
+                required
+                autoFocus
+              />
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">Condomínio Residencial</h1>
-              <p className="text-sm text-gray-600">Edifício São Paulo - Gestão Integrada</p>
+            <Button type="submit" className="w-full">Entrar</Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <header className="bg-white border-b border-gray-200 px-4 py-3">
+          <div className="flex items-center justify-between max-w-7xl mx-auto">
+            <div className="flex items-center space-x-3">
+              <div className="bg-blue-600 p-2 rounded-lg">
+                <Home className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">Condomínio Residencial</h1>
+                <p className="text-sm text-gray-600">Edifício São Paulo - Gestão Integrada</p>
+                {userName && (
+                  <p className="text-xs text-gray-500 mt-1">Olá, {userName}!</p>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="flex items-center space-x-3">
-            <Button variant="outline" size="sm" className="hidden sm:flex">
-              <Phone className="h-4 w-4 mr-2" />
-              Contatar Síndico
-            </Button>
-            <Button variant="outline" size="icon">
-              <Bell className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Navigation Pills */}
-        <div className="flex flex-wrap gap-2 mb-6 p-1 bg-white rounded-lg border">
-          {menuItems.map((item) => {
-            const Icon = item.icon
-            return (
-              <Button
-                key={item.id}
-                variant={activeSection === item.id ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setActiveSection(item.id)}
-                className="flex items-center space-x-2"
-              >
-                <Icon className="h-4 w-4" />
-                <span className="hidden sm:inline">{item.label}</span>
+            <div className="flex items-center space-x-3">
+              <Button variant="outline" size="sm" className="hidden sm:flex">
+                <Phone className="h-4 w-4 mr-2" />
+                Contatar Síndico
               </Button>
-            )
-          })}
-        </div>
+              <Button variant="outline" size="icon">
+                <Bell className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </header>
 
-        {/* Avisos Importantes - Sempre visível */}
-        <Card className="mb-6 border-l-4 border-l-red-500">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center space-x-2 text-red-700">
-              <AlertTriangle className="h-5 w-5" />
-              <span>Avisos Importantes</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {avisos.map((aviso, index) => (
-              <div key={index} className="flex items-start space-x-3 p-3 bg-red-50 rounded-lg">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <h4 className="font-medium text-red-900">{aviso.titulo}</h4>
-                    <Badge variant={aviso.tipo === "urgente" ? "destructive" : "secondary"}>{aviso.tipo}</Badge>
-                  </div>
-                  <p className="text-sm text-red-700">{aviso.descricao}</p>
-                  <p className="text-xs text-red-600 mt-1">{aviso.data}</p>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {/* Gestão de Faxina */}
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Sparkles className="h-5 w-5 text-blue-600" />
-                <span>Gestão de Faxina</span>
-              </CardTitle>
-              <CardDescription>Próximo responsável e histórico</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Próximo Responsável */}
-              <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-l-blue-500">
-                <h4 className="font-medium text-blue-900 mb-2">Próximo Responsável</h4>
-                <div className="flex items-center space-x-3">
-                  <Avatar>
-                    <AvatarImage src={proximaFaxina.avatar || "/placeholder.svg"} />
-                    <AvatarFallback>
-                      {proximaFaxina.nome
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium">{proximaFaxina.nome}</p>
-                    <p className="text-sm text-gray-600">Apt. {proximaFaxina.apartamento}</p>
-                    <p className="text-sm text-blue-600">Venc: {proximaFaxina.dataVencimento}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Histórico */}
-              <div>
-                <h4 className="font-medium mb-3">Últimas 6 Responsabilidades</h4>
-                <ScrollArea className="h-48">
-                  <div className="space-y-2">
-                    {historicoFaxina.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                        <div className="flex items-center space-x-2">
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback className="text-xs">
-                              {item.nome
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="text-sm font-medium">{item.nome}</p>
-                            <p className="text-xs text-gray-600">{item.data}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                          {item.comprovante && <FileText className="h-4 w-4 text-blue-600" />}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Status das Parcelas de Cobertura */}
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <DollarSign className="h-5 w-5 text-green-600" />
-                <span>Parcelas da Cobertura</span>
-              </CardTitle>
-              <CardDescription>Status de pagamento coletivo</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {parcelasCobertura.map((parcela, index) => (
-                  <div key={index} className="p-3 border rounded-lg">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <p className="font-medium">Parcela {parcela.parcela}</p>
-                        <p className="text-sm text-gray-600">{parcela.valor}</p>
-                      </div>
-                      <Badge variant={parcela.pagos === parcela.total ? "default" : "secondary"}>
-                        {parcela.pagos}/{parcela.total}
-                      </Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <p className="text-xs text-gray-600">Venc: {parcela.vencimento}</p>
-                      <div className="w-24 bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-green-600 h-2 rounded-full"
-                          style={{ width: `${(parcela.pagos / parcela.total) * 100}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Gestão de Produtos de Limpeza */}
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <ShoppingCart className="h-5 w-5 text-purple-600" />
-                <span>Produtos de Limpeza</span>
-              </CardTitle>
-              <CardDescription>Próximo responsável e compras</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Próximo Responsável */}
-              <div className="p-4 bg-purple-50 rounded-lg border-l-4 border-l-purple-500">
-                <h4 className="font-medium text-purple-900 mb-2">Próximo Responsável</h4>
-                <div className="flex items-center space-x-3">
-                  <Avatar>
-                    <AvatarImage src={proximaLimpeza.avatar || "/placeholder.svg"} />
-                    <AvatarFallback>
-                      {proximaLimpeza.nome
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium">{proximaLimpeza.nome}</p>
-                    <p className="text-sm text-gray-600">Apt. {proximaLimpeza.apartamento}</p>
-                    <p className="text-sm text-purple-600">Data: {proximaLimpeza.dataCompra}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Histórico de Compras */}
-              <div>
-                <h4 className="font-medium mb-3">Últimas Compras</h4>
-                <div className="space-y-2">
-                  {historicoLimpeza.map((item, index) => (
-                    <div key={index} className="p-2 bg-gray-50 rounded">
-                      <div className="flex justify-between items-start mb-1">
-                        <p className="text-sm font-medium">{item.nome}</p>
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                      </div>
-                      <p className="text-xs text-gray-600 mb-1">{item.data}</p>
-                      <p className="text-xs text-gray-700">{item.itens}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Controle de Manutenções */}
-          <Card className="lg:col-span-2 xl:col-span-3">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Wrench className="h-5 w-5 text-orange-600" />
-                <span>Controle de Manutenções</span>
-              </CardTitle>
-              <CardDescription>Histórico de manutenções realizadas</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {manutencoes.map((manutencao, index) => (
-                  <div key={index} className="p-4 border rounded-lg">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-medium text-sm">{manutencao.tipo}</h4>
-                      <Badge variant="outline">{manutencao.valor}</Badge>
-                    </div>
-                    <p className="text-xs text-gray-600 mb-1">Data: {manutencao.data}</p>
-                    <p className="text-xs text-gray-700">Responsável: {manutencao.responsavel}</p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Seções Adicionais */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-          {/* Calendário de Eventos */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Calendar className="h-5 w-5 text-indigo-600" />
-                <span>Próximos Eventos</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3 p-2 bg-indigo-50 rounded">
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-indigo-600">25</p>
-                    <p className="text-xs text-indigo-600">JAN</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Assembleia Geral</p>
-                    <p className="text-xs text-gray-600">19:00 - Salão de Festas</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3 p-2 bg-gray-50 rounded">
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-gray-600">30</p>
-                    <p className="text-xs text-gray-600">JAN</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Limpeza da Piscina</p>
-                    <p className="text-xs text-gray-600">08:00 - Área de Lazer</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Reserva de Área Comum */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Users className="h-5 w-5 text-teal-600" />
-                <span>Área Comum</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <Button className="w-full" variant="outline">
-                  Reservar Salão de Festas
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          {/* Navigation Pills */}
+          <div className="flex flex-wrap gap-2 mb-6 p-1 bg-white rounded-lg border">
+            {menuItems.map((item) => {
+              const Icon = item.icon
+              return (
+                <Button
+                  key={item.id}
+                  variant={activeSection === item.id ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setActiveSection(item.id)}
+                  className="flex items-center space-x-2"
+                >
+                  <Icon className="h-4 w-4" />
+                  <span className="hidden sm:inline">{item.label}</span>
                 </Button>
-                <Button className="w-full" variant="outline">
-                  Reservar Churrasqueira
-                </Button>
-                <div className="text-xs text-gray-600 mt-2">
-                  <p>Próximas reservas:</p>
-                  <p>• Salão: 20/01 - Apt 301</p>
-                  <p>• Churrasqueira: 22/01 - Apt 102</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              )
+            })}
+          </div>
 
-          {/* Contato Rápido */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Mail className="h-5 w-5 text-red-600" />
-                <span>Contato Rápido</span>
+          {/* Avisos Importantes - Sempre visível */}
+          <Card className="mb-6 border-l-4 border-l-red-500">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center space-x-2 text-red-700">
+                <AlertTriangle className="h-5 w-5" />
+                <span>Avisos Importantes</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button className="w-full" variant="outline">
-                <Phone className="h-4 w-4 mr-2" />
-                Síndico: (11) 99999-9999
-              </Button>
-              <Button className="w-full" variant="outline">
-                <Mail className="h-4 w-4 mr-2" />
-                Administradora
-              </Button>
-              <Button className="w-full" variant="outline">
-                <Settings className="h-4 w-4 mr-2" />
-                Portaria
-              </Button>
+              {avisos.map((aviso, index) => (
+                <div key={index} className="flex items-start space-x-3 p-3 bg-red-50 rounded-lg">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <h4 className="font-medium text-red-900">{aviso.titulo}</h4>
+                      <Badge variant={aviso.tipo === "urgente" ? "destructive" : "secondary"}>{aviso.tipo}</Badge>
+                    </div>
+                    <p className="text-sm text-red-700">{aviso.descricao}</p>
+                    <p className="text-xs text-red-600 mt-1">{aviso.data}</p>
+                  </div>
+                </div>
+              ))}
             </CardContent>
           </Card>
+
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {/* Gestão de Faxina */}
+            <Card className="lg:col-span-1">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Sparkles className="h-5 w-5 text-blue-600" />
+                  <span>Gestão de Faxina</span>
+                </CardTitle>
+                <CardDescription>Próximo responsável e histórico</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Próximo Responsável */}
+                <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-l-blue-500">
+                  <h4 className="font-medium text-blue-900 mb-2">Próximo Responsável</h4>
+                  <div className="flex items-center space-x-3">
+                    <Avatar>
+                      <AvatarImage src={proximaFaxina.avatar || "/placeholder.svg"} />
+                      <AvatarFallback>
+                        {proximaFaxina.nome
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium">{proximaFaxina.nome}</p>
+                      <p className="text-sm text-gray-600">Apt. {proximaFaxina.apartamento}</p>
+                      <p className="text-sm text-blue-600">Venc: {proximaFaxina.dataVencimento}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Histórico */}
+                <div>
+                  <h4 className="font-medium mb-3">Últimas 6 Responsabilidades</h4>
+                  <ScrollArea className="h-48">
+                    <div className="space-y-2">
+                      {historicoFaxina.map((item, index) => (
+                        <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                          <div className="flex items-center space-x-2">
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback className="text-xs">
+                                {item.nome
+                                  .split(" ")
+                                  .map((n) => n[0])
+                                  .join("")}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="text-sm font-medium">{item.nome}</p>
+                              <p className="text-xs text-gray-600">{item.data}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                            {item.comprovante && <FileText className="h-4 w-4 text-blue-600" />}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Status das Parcelas de Cobertura */}
+            <Card className="lg:col-span-1">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <DollarSign className="h-5 w-5 text-green-600" />
+                  <span>Parcelas da Cobertura</span>
+                </CardTitle>
+                <CardDescription>Status de pagamento coletivo</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {parcelasCobertura.map((parcela, index) => (
+                    <div key={index} className="p-3 border rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="font-medium">Parcela {parcela.parcela}</p>
+                          <p className="text-sm text-gray-600">{parcela.valor}</p>
+                        </div>
+                        <Badge variant={parcela.pagos === parcela.total ? "default" : "secondary"}>
+                          {parcela.pagos}/{parcela.total}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <p className="text-xs text-gray-600">Venc: {parcela.vencimento}</p>
+                        <div className="w-24 bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-green-600 h-2 rounded-full"
+                            style={{ width: `${(parcela.pagos / parcela.total) * 100}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Gestão de Produtos de Limpeza */}
+            <Card className="lg:col-span-1">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <ShoppingCart className="h-5 w-5 text-purple-600" />
+                  <span>Produtos de Limpeza</span>
+                </CardTitle>
+                <CardDescription>Próximo responsável e compras</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Próximo Responsável */}
+                <div className="p-4 bg-purple-50 rounded-lg border-l-4 border-l-purple-500">
+                  <h4 className="font-medium text-purple-900 mb-2">Próximo Responsável</h4>
+                  <div className="flex items-center space-x-3">
+                    <Avatar>
+                      <AvatarImage src={proximaLimpeza.avatar || "/placeholder.svg"} />
+                      <AvatarFallback>
+                        {proximaLimpeza.nome
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium">{proximaLimpeza.nome}</p>
+                      <p className="text-sm text-gray-600">Apt. {proximaLimpeza.apartamento}</p>
+                      <p className="text-sm text-purple-600">Data: {proximaLimpeza.dataCompra}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Histórico de Compras */}
+                <div>
+                  <h4 className="font-medium mb-3">Últimas Compras</h4>
+                  <div className="space-y-2">
+                    {historicoLimpeza.map((item, index) => (
+                      <div key={index} className="p-2 bg-gray-50 rounded">
+                        <div className="flex justify-between items-start mb-1">
+                          <p className="text-sm font-medium">{item.nome}</p>
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                        </div>
+                        <p className="text-xs text-gray-600 mb-1">{item.data}</p>
+                        <p className="text-xs text-gray-700">{item.itens}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Controle de Manutenções */}
+            <Card className="lg:col-span-2 xl:col-span-3">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Wrench className="h-5 w-5 text-orange-600" />
+                  <span>Controle de Manutenções</span>
+                </CardTitle>
+                <CardDescription>Histórico de manutenções realizadas</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {manutencoes.map((manutencao, index) => (
+                    <div key={index} className="p-4 border rounded-lg">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="font-medium text-sm">{manutencao.tipo}</h4>
+                        <Badge variant="outline">{manutencao.valor}</Badge>
+                      </div>
+                      <p className="text-xs text-gray-600 mb-1">Data: {manutencao.data}</p>
+                      <p className="text-xs text-gray-700">Responsável: {manutencao.responsavel}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Seções Adicionais */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+            {/* Calendário de Eventos */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Calendar className="h-5 w-5 text-indigo-600" />
+                  <span>Próximos Eventos</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3 p-2 bg-indigo-50 rounded">
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-indigo-600">25</p>
+                      <p className="text-xs text-indigo-600">JAN</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Assembleia Geral</p>
+                      <p className="text-xs text-gray-600">19:00 - Salão de Festas</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3 p-2 bg-gray-50 rounded">
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-gray-600">30</p>
+                      <p className="text-xs text-gray-600">JAN</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Limpeza da Piscina</p>
+                      <p className="text-xs text-gray-600">08:00 - Área de Lazer</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Reserva de Área Comum */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Users className="h-5 w-5 text-teal-600" />
+                  <span>Área Comum</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <Button className="w-full" variant="outline">
+                    Reservar Salão de Festas
+                  </Button>
+                  <Button className="w-full" variant="outline">
+                    Reservar Churrasqueira
+                  </Button>
+                  <div className="text-xs text-gray-600 mt-2">
+                    <p>Próximas reservas:</p>
+                    <p>• Salão: 20/01 - Apt 301</p>
+                    <p>• Churrasqueira: 22/01 - Apt 102</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Contato Rápido */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Mail className="h-5 w-5 text-red-600" />
+                  <span>Contato Rápido</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button className="w-full" variant="outline">
+                  <Phone className="h-4 w-4 mr-2" />
+                  Síndico: (11) 99999-9999
+                </Button>
+                <Button className="w-full" variant="outline">
+                  <Mail className="h-4 w-4 mr-2" />
+                  Administradora
+                </Button>
+                <Button className="w-full" variant="outline">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Portaria
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Botão Flutuante de Contato */}
+        <div className="fixed bottom-6 right-6">
+          <Button size="lg" className="rounded-full shadow-lg">
+            <Phone className="h-5 w-5 mr-2" />
+            <span className="hidden sm:inline">Contato</span>
+          </Button>
         </div>
       </div>
-
-      {/* Botão Flutuante de Contato */}
-      <div className="fixed bottom-6 right-6">
-        <Button size="lg" className="rounded-full shadow-lg">
-          <Phone className="h-5 w-5 mr-2" />
-          <span className="hidden sm:inline">Contato</span>
-        </Button>
-      </div>
-    </div>
+    </>
   )
 } 
