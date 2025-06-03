@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { DollarSign } from "lucide-react"
+import { DollarSign, CheckCircle } from "lucide-react"
 
 interface CoverageInstallment {
   parcela: number
@@ -16,10 +16,10 @@ interface CoverageInstallmentsProps {
 
 export function CoverageInstallments({ 
   installments = [
-    { parcela: 1, valor: "R$ 2.500,00", vencimento: "15/01/2025", pagos: 8, total: 12 },
-    { parcela: 2, valor: "R$ 2.500,00", vencimento: "15/02/2025", pagos: 6, total: 12 },
-    { parcela: 3, valor: "R$ 2.500,00", vencimento: "15/03/2025", pagos: 4, total: 12 },
-    { parcela: 4, valor: "R$ 2.500,00", vencimento: "15/04/2025", pagos: 2, total: 12 },
+    { parcela: 1, valor: "R$ 400,00", vencimento: "25/05/2025", pagos: 4, total: 4 },
+    { parcela: 2, valor: "R$ 400,00", vencimento: "25/06/2025", pagos: 0, total: 4 },
+    { parcela: 3, valor: "R$ 400,00", vencimento: "25/07/2025", pagos: 0, total: 4 },
+    { parcela: 4, valor: "R$ 400,00", vencimento: "25/08/2025", pagos: 0, total: 4 },
   ]
 }: CoverageInstallmentsProps) {
   return (
@@ -33,28 +33,41 @@ export function CoverageInstallments({
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {installments.map((installment, index) => (
-            <div key={index} className="p-3 border rounded-lg">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <p className="font-medium">Parcela {installment.parcela}</p>
-                  <p className="text-sm text-gray-600">{installment.valor}</p>
+          {installments.map((installment, index) => {
+            const isPaid = installment.pagos === installment.total;
+            return (
+              <div
+                key={index}
+                className={`p-3 border rounded-lg ${isPaid ? 'bg-green-50 border-green-200' : ''}`}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="font-medium">Parcela {installment.parcela}</p>
+                    <p className="text-sm text-gray-600">{installment.valor}</p>
+                  </div>
+                  {isPaid ? (
+                    <div className="flex items-center space-x-1">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <span className="text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded">Pago</span>
+                    </div>
+                  ) : (
+                    <Badge variant="secondary">
+                      {installment.pagos}/{installment.total}
+                    </Badge>
+                  )}
                 </div>
-                <Badge variant={installment.pagos === installment.total ? "default" : "secondary"}>
-                  {installment.pagos}/{installment.total}
-                </Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <p className="text-xs text-gray-600">Venc: {installment.vencimento}</p>
-                <div className="w-24 bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-green-600 h-2 rounded-full"
-                    style={{ width: `${(installment.pagos / installment.total) * 100}%` }}
-                  ></div>
+                <div className="flex justify-between items-center">
+                  <p className="text-xs text-gray-600">Venc: {installment.vencimento}</p>
+                  <div className="w-24 bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-green-600 h-2 rounded-full"
+                      style={{ width: `${(installment.pagos / installment.total) * 100}%` }}
+                    ></div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </CardContent>
     </Card>
