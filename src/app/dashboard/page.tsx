@@ -385,43 +385,6 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            {/* Status das Parcelas de Cobertura */}
-            <Card className="lg:col-span-1">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <DollarSign className="h-5 w-5 text-green-600" />
-                  <span>Parcelas da Cobertura</span>
-                </CardTitle>
-                <CardDescription>Status de pagamento coletivo</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {parcelasCobertura.map((parcela, index) => (
-                    <div key={index} className="p-3 border rounded-lg">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <p className="font-medium">Parcela {parcela.parcela}</p>
-                          <p className="text-sm text-gray-600">{parcela.valor}</p>
-                        </div>
-                        <Badge variant={parcela.pagos === parcela.total ? "default" : "secondary"}>
-                          {parcela.pagos}/{parcela.total}
-                        </Badge>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <p className="text-xs text-gray-600">Venc: {parcela.vencimento}</p>
-                        <div className="w-24 bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-green-600 h-2 rounded-full"
-                            style={{ width: `${(parcela.pagos / parcela.total) * 100}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Gestão de Produtos de Limpeza */}
             <Card className="lg:col-span-1">
               <CardHeader>
@@ -472,8 +435,45 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
+            {/* Status das Parcelas de Cobertura */}
+            <Card className="lg:col-span-1">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <DollarSign className="h-5 w-5 text-green-600" />
+                  <span>Parcelas da Cobertura</span>
+                </CardTitle>
+                <CardDescription>Status de pagamento coletivo</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {parcelasCobertura.map((parcela, index) => (
+                    <div key={index} className="p-3 border rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="font-medium">Parcela {parcela.parcela}</p>
+                          <p className="text-sm text-gray-600">{parcela.valor}</p>
+                        </div>
+                        <Badge variant={parcela.pagos === parcela.total ? "default" : "secondary"}>
+                          {parcela.pagos}/{parcela.total}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <p className="text-xs text-gray-600">Venc: {parcela.vencimento}</p>
+                        <div className="w-24 bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-green-600 h-2 rounded-full"
+                            style={{ width: `${(parcela.pagos / parcela.total) * 100}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Controle de Manutenções */}
-            <Card className="lg:col-span-2 xl:col-span-3">
+            <Card className="lg:col-span-1">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Wrench className="h-5 w-5 text-orange-600" />
@@ -482,15 +482,19 @@ export default function DashboardPage() {
                 <CardDescription>Histórico de manutenções realizadas</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="space-y-3">
                   {manutencoes.map((manutencao, index) => (
-                    <div key={index} className="p-4 border rounded-lg">
-                      <div className="flex items-start justify-between mb-2">
-                        <h4 className="font-medium text-sm">{manutencao.tipo}</h4>
+                    <div key={index} className="p-3 border rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="font-medium">{manutencao.tipo}</p>
+                        </div>
                         <Badge variant="outline">{manutencao.valor}</Badge>
                       </div>
-                      <p className="text-xs text-gray-600 mb-1">Data: {manutencao.data}</p>
-                      <p className="text-xs text-gray-700">Responsável: {manutencao.responsavel}</p>
+                      <div className="flex justify-between items-center">
+                        <p className="text-xs text-gray-600">Data: {manutencao.data}</p>
+                        <span className="text-xs text-gray-700">Responsável: {manutencao.responsavel}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
