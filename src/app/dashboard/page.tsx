@@ -12,7 +12,6 @@ import {
   CheckCircle,
   DollarSign,
   FileText,
-  Home,
   Mail,
   Phone,
   Settings,
@@ -30,6 +29,27 @@ export default function DashboardPage() {
   const [userName, setUserName] = useState<string | null>(null)
   const [nameInput, setNameInput] = useState("")
   const [showModal, setShowModal] = useState(false)
+  const [avisos, setAvisos] = useState([
+    {
+      titulo: "Manutenção do Elevador",
+      descricao: "Elevador será desligado das 8h às 12h no dia 18/01",
+      tipo: "urgente",
+      data: "16/01/2024",
+    },
+    {
+      titulo: "Assembleia Geral",
+      descricao: "Reunião marcada para 25/01 às 19h no salão de festas",
+      tipo: "importante",
+      data: "15/01/2024",
+    },
+  ])
+  const [showAddAviso, setShowAddAviso] = useState(false)
+  const [newAviso, setNewAviso] = useState({
+    titulo: "",
+    descricao: "",
+    tipo: "importante",
+    data: new Date().toISOString().slice(0, 10),
+  })
 
   // Check localStorage for user name on mount
   useEffect(() => {
@@ -107,26 +127,19 @@ export default function DashboardPage() {
     },
   ]
 
-  const avisos = [
-    {
-      titulo: "Manutenção do Elevador",
-      descricao: "Elevador será desligado das 8h às 12h no dia 18/01",
-      tipo: "urgente",
-      data: "16/01/2024",
-    },
-    {
-      titulo: "Assembleia Geral",
-      descricao: "Reunião marcada para 25/01 às 19h no salão de festas",
-      tipo: "importante",
-      data: "15/01/2024",
-    },
-  ]
-
   const manutencoes = [
     { tipo: "Limpeza da Caixa D'água", data: "10/01/2024", valor: "R$ 800,00", responsavel: "Empresa AquaLimpa" },
     { tipo: "Pintura da Fachada", data: "15/12/2023", valor: "R$ 5.200,00", responsavel: "Pinturas Silva" },
     { tipo: "Reparo do Portão", data: "28/11/2023", valor: "R$ 350,00", responsavel: "Serralheria Santos" },
   ]
+
+  const handleAddAviso = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newAviso.titulo.trim() || !newAviso.descricao.trim() || !newAviso.data.trim()) return
+    setAvisos([{ ...newAviso }, ...avisos])
+    setShowAddAviso(false)
+    setNewAviso({ titulo: "", descricao: "", tipo: "importante", data: "" })
+  }
 
   return (
     <>
@@ -157,12 +170,17 @@ export default function DashboardPage() {
           <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
             {/* Left: Logo and Title */}
             <div className="flex items-center space-x-4">
-              <div className="bg-blue-600 p-2 rounded-lg">
-                <Home className="h-6 w-6 text-white" />
+              <div className="bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
+                <img
+                  src="/jardins-do-sul.jpeg"
+                  alt="Jardins do Sul"
+                  className="h-12 w-12 object-cover rounded-md"
+                  style={{ minWidth: 48, minHeight: 48 }}
+                />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Condomínio Residencial</h1>
-                <p className="text-sm text-gray-600">Edifício São Paulo - Gestão Integrada</p>
+                <p className="text-sm text-gray-600">Jardins do Sul - Gestão Integrada</p>
               </div>
             </div>
             {/* Right: User Identification - Modern Style */}
@@ -186,27 +204,94 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 py-6">
           {/* Avisos Importantes - Sempre visível */}
           <Card className="mb-6 border-l-4 border-l-red-500">
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
               <CardTitle className="flex items-center space-x-2 text-red-700">
                 <AlertTriangle className="h-5 w-5" />
                 <span>Avisos Importantes</span>
               </CardTitle>
+              <Button size="sm" variant="outline" onClick={() => setShowAddAviso(true)}>
+                Novo Aviso
+              </Button>
             </CardHeader>
             <CardContent className="space-y-3">
-              {avisos.map((aviso, index) => (
-                <div key={index} className="flex items-start space-x-3 p-3 bg-red-50 rounded-lg">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <h4 className="font-medium text-red-900">{aviso.titulo}</h4>
-                      <Badge variant={aviso.tipo === "urgente" ? "destructive" : "secondary"}>{aviso.tipo}</Badge>
+              {avisos.map((aviso, index) => {
+                const isUrgente = aviso.tipo === "urgente"
+                return (
+                  <div
+                    key={index}
+                    className={`flex items-start space-x-3 p-3 rounded-lg border-l-4 ${
+                      isUrgente
+                        ? 'bg-red-50 border-l-red-500'
+                        : 'bg-yellow-50 border-l-yellow-500'
+                    }`}
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <h4 className={`font-medium ${isUrgente ? 'text-red-900' : 'text-yellow-900'}`}>{aviso.titulo}</h4>
+                        <Badge variant={isUrgente ? "destructive" : "secondary"}>{aviso.tipo}</Badge>
+                      </div>
+                      <p className={`text-sm ${isUrgente ? 'text-red-700' : 'text-yellow-700'}`}>{aviso.descricao}</p>
+                      <p className={`text-xs mt-1 ${isUrgente ? 'text-red-600' : 'text-yellow-600'}`}>{aviso.data}</p>
                     </div>
-                    <p className="text-sm text-red-700">{aviso.descricao}</p>
-                    <p className="text-xs text-red-600 mt-1">{aviso.data}</p>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </CardContent>
           </Card>
+
+          {/* Dialog for adding new aviso */}
+          <Dialog open={showAddAviso} onOpenChange={setShowAddAviso}>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Novo Aviso</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleAddAviso} className="space-y-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="aviso-titulo">Título</Label>
+                  <Input
+                    id="aviso-titulo"
+                    value={newAviso.titulo}
+                    onChange={e => setNewAviso({ ...newAviso, titulo: e.target.value })}
+                    placeholder="Título do aviso"
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="aviso-descricao">Descrição</Label>
+                  <Input
+                    id="aviso-descricao"
+                    value={newAviso.descricao}
+                    onChange={e => setNewAviso({ ...newAviso, descricao: e.target.value })}
+                    placeholder="Descrição do aviso"
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="aviso-tipo">Tipo</Label>
+                  <select
+                    id="aviso-tipo"
+                    className="border rounded px-2 py-1"
+                    value={newAviso.tipo}
+                    onChange={e => setNewAviso({ ...newAviso, tipo: e.target.value })}
+                  >
+                    <option value="urgente">Urgente</option>
+                    <option value="importante">Importante</option>
+                  </select>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="aviso-data">Data</Label>
+                  <Input
+                    id="aviso-data"
+                    type="date"
+                    value={newAviso.data}
+                    onChange={e => setNewAviso({ ...newAviso, data: e.target.value })}
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full">Adicionar Aviso</Button>
+              </form>
+            </DialogContent>
+          </Dialog>
 
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
