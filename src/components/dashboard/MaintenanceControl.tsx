@@ -15,9 +15,8 @@ interface MaintenanceControlProps {
 
 export function MaintenanceControl({ 
   maintenanceRecords = [
-    { tipo: "Limpeza da Caixa D'água", data: "10/01/2024", valor: "R$ 800,00", responsavel: "Empresa AquaLimpa" },
-    { tipo: "Pintura da Fachada", data: "15/12/2023", valor: "R$ 5.200,00", responsavel: "Pinturas Silva" },
-    { tipo: "Reparo do Portão", data: "28/11/2023", valor: "R$ 350,00", responsavel: "Serralheria Santos" },
+    { tipo: "Limpeza da Caixa D'água", data: "xx/xx/2023", valor: "R$-", responsavel: "Empresa X" },
+    { tipo: "Pintura do Prédio", data: "xx/xx/2023", valor: "R$-", responsavel: "Empresa Y" },
   ]
 }: MaintenanceControlProps) {
   return (
