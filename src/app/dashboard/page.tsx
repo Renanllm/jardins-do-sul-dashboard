@@ -11,7 +11,6 @@ import {
   Calendar,
   CheckCircle,
   DollarSign,
-  FileText,
   Mail,
   Phone,
   Settings,
@@ -359,7 +358,7 @@ export default function DashboardPage() {
                   <ScrollArea className="h-48">
                     <div className="space-y-2">
                       {historicoFaxina.map((item, index) => (
-                        <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <div key={index} className="flex items-center justify-between p-2 bg-green-50 rounded border border-green-200">
                           <div className="flex items-center space-x-2">
                             <Avatar className="h-8 w-8">
                               <AvatarFallback className="text-xs">
@@ -375,8 +374,8 @@ export default function DashboardPage() {
                             </div>
                           </div>
                           <div className="flex items-center space-x-1">
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                            {item.comprovante && <FileText className="h-4 w-4 text-blue-600" />}
+                            <CheckCircle className="h-5 w-5 text-green-600" />
+                            <span className="text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded">Pago</span>
                           </div>
                         </div>
                       ))}
