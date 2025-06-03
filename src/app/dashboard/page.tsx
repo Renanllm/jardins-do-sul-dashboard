@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
-  Bell,
   Calendar,
   CheckCircle,
   DollarSign,
@@ -28,7 +27,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 export default function DashboardPage() {
-  const [activeSection, setActiveSection] = useState("dashboard")
   const [userName, setUserName] = useState<string | null>(null)
   const [nameInput, setNameInput] = useState("")
   const [showModal, setShowModal] = useState(false)
@@ -130,15 +128,6 @@ export default function DashboardPage() {
     { tipo: "Reparo do Portão", data: "28/11/2023", valor: "R$ 350,00", responsavel: "Serralheria Santos" },
   ]
 
-  const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: Home },
-    { id: "faxina", label: "Faxina", icon: Sparkles },
-    { id: "cobertura", label: "Cobertura", icon: DollarSign },
-    { id: "limpeza", label: "Produtos", icon: ShoppingCart },
-    { id: "manutencao", label: "Manutenção", icon: Wrench },
-    { id: "calendario", label: "Calendário", icon: Calendar },
-  ]
-
   return (
     <>
       <Dialog open={showModal} onOpenChange={() => {}}>
@@ -164,52 +153,37 @@ export default function DashboardPage() {
       </Dialog>
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-4 py-3">
-          <div className="flex items-center justify-between max-w-7xl mx-auto">
-            <div className="flex items-center space-x-3">
+        <header className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            {/* Left: Logo and Title */}
+            <div className="flex items-center space-x-4">
               <div className="bg-blue-600 p-2 rounded-lg">
                 <Home className="h-6 w-6 text-white" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Condomínio Residencial</h1>
                 <p className="text-sm text-gray-600">Edifício São Paulo - Gestão Integrada</p>
-                {userName && (
-                  <p className="text-xs text-gray-500 mt-1">Olá, {userName}!</p>
-                )}
               </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <Button variant="outline" size="sm" className="hidden sm:flex">
-                <Phone className="h-4 w-4 mr-2" />
-                Contatar Síndico
-              </Button>
-              <Button variant="outline" size="icon">
-                <Bell className="h-4 w-4" />
-              </Button>
+            {/* Right: User Identification - Modern Style */}
+            <div className="flex items-center space-x-3 bg-gray-100 px-4 py-2 rounded-xl shadow-sm">
+              <Avatar className="h-10 w-10 border-2 border-blue-500 shadow">
+                <AvatarImage src={userName ? undefined : "/placeholder.svg?height=40&width=40"} />
+                <AvatarFallback className="bg-blue-500 text-white font-bold">
+                  {userName ? userName.split(" ").map((n) => n[0]).join("") : "?"}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="text-base font-semibold text-gray-900 leading-tight">
+                  {userName ? userName : "Visitante"}
+                </p>
+                <p className="text-xs text-gray-500">Morador</p>
+              </div>
             </div>
           </div>
         </header>
 
         <div className="max-w-7xl mx-auto px-4 py-6">
-          {/* Navigation Pills */}
-          <div className="flex flex-wrap gap-2 mb-6 p-1 bg-white rounded-lg border">
-            {menuItems.map((item) => {
-              const Icon = item.icon
-              return (
-                <Button
-                  key={item.id}
-                  variant={activeSection === item.id ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setActiveSection(item.id)}
-                  className="flex items-center space-x-2"
-                >
-                  <Icon className="h-4 w-4" />
-                  <span className="hidden sm:inline">{item.label}</span>
-                </Button>
-              )
-            })}
-          </div>
-
           {/* Avisos Importantes - Sempre visível */}
           <Card className="mb-6 border-l-4 border-l-red-500">
             <CardHeader className="pb-3">
